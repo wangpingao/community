@@ -2,11 +2,18 @@ package com.nbcb.community.community.controller;
 
 import com.nbcb.community.community.dto.AccessTokenDTO;
 import com.nbcb.community.community.dto.GithubUser;
+import com.nbcb.community.community.mapper.UserMapper;
+import com.nbcb.community.community.model.User;
 import com.nbcb.community.community.provider.GithubProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.UUID;
 
 /**
  * @Auther: wangpingao
@@ -19,19 +26,41 @@ public class AuthorizeController {
     @Autowired
     private GithubProvider githubProvider;
 
+    @Value("${github.client.id}")
+    private String clientId;
+    @Value("${github.client.secret}")
+    private String clientSecret;
+    @Value("${github.redirect.uri}")
+    private String redirectUri;
+    @Autowired
+    private UserMapper userMapper;
+
     @GetMapping("/callback")
     public String callback(@RequestParam(name = "code")String code,
-                           @RequestParam(name = "state")String state){
+                           @RequestParam(name = "state")String state,
+                           HttpServletRequest request){
 
         AccessTokenDTO accessTokenDTO=new AccessTokenDTO();
-        accessTokenDTO.setClient_id("4258d63e07a94fad0639");
-        accessTokenDTO.setClient_secret("81e9b753e8db343c68248d222bc2ab5c958a9e0a");
+        accessTokenDTO.setClient_id(clientId);
+        accessTokenDTO.setClient_secret(clientSecret);
         accessTokenDTO.setCode(code);
         accessTokenDTO.setState(state);
-        accessTokenDTO.setRedirect_uri("http://localhost:8887/callback");
+        accessTokenDTO.setRedirect_uri(redirectUri);
         String access_token=githubProvider.getAccessToken(accessTokenDTO);
         GithubUser githubUser=githubProvider.getUser(access_token);
-        System.out.println(githubUser.getName());
-        return "index";
+        if (githubUser!=null){
+            User user=new User();
+            user.setName(githubUser.getName());
+            user.setToken(UUID.randomUUID().toString());
+            user.setAccountId(githubUser.getId());
+            user.setGmtCreate(System.currentTimeMillis());
+            user.setGmtModified(user.getGmtCreate());
+            userMapper.insert(user);
+            HttpSession session=request.getSession();
+            session.setAttribute("user",githubUser);
+            return "redirect:/";
+        }else{
+            return "redirect:/";
+        }
     }
 }
