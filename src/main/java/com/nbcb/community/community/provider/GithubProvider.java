@@ -17,19 +17,19 @@ import java.io.IOException;
 @Component
 public class GithubProvider {
 
-    public String getAccessToken(AccessTokenDTO accessTokenDTO){
+    public String getAccessToken(AccessTokenDTO accessTokenDTO) {
         MediaType mediaType = MediaType.get("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();
-        String url="https://github.com/login/oauth/access_token";
-        RequestBody body = RequestBody.create(mediaType,JSON.toJSONString(accessTokenDTO));
+        String url = "https://github.com/login/oauth/access_token";
+        RequestBody body = RequestBody.create(mediaType, JSON.toJSONString(accessTokenDTO));
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
                 .build();
         try (Response response = client.newCall(request).execute()) {
-            String string=response.body().string();
+            String string = response.body().string();
             String[] split = string.split("&");
-            String[] access_token=split[0].split("=");
+            String[] access_token = split[0].split("=");
             return access_token[1];
         } catch (IOException e) {
 
@@ -38,15 +38,15 @@ public class GithubProvider {
         return null;
     }
 
-    public GithubUser getUser(String accessToken){
+    public GithubUser getUser(String accessToken) {
         OkHttpClient client = new OkHttpClient();
-        String url="https://api.github.com/user?access_token="+accessToken;
+        String url = "https://api.github.com/user?access_token=" + accessToken;
         Request request = new Request.Builder()
                 .url(url)
                 .build();
         try (Response response = client.newCall(request).execute()) {
-            String string=response.body().string();
-            GithubUser githubUser= JSON.parseObject(string,GithubUser.class);
+            String string = response.body().string();
+            GithubUser githubUser = JSON.parseObject(string, GithubUser.class);
             return githubUser;
         } catch (IOException e) {
 

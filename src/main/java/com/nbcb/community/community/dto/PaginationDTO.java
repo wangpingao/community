@@ -21,46 +21,41 @@ public class PaginationDTO {
     private Boolean showLast;
     private Integer page;
     private Integer totalPage;
-    private List<Integer> pages=new ArrayList<>();
+    private List<Integer> pages = new ArrayList<>();
 
-    public void setPagination(Integer totalCount,Integer page,Integer size){
-        if (totalCount%size==0){
-            this.totalPage=totalCount/size;
-        }else{
-            this.totalPage=totalCount/size+1;
-        }
-        this.page=page;
-
+    public void setPagination(Integer totalPage, Integer page) {
+        this.totalPage = totalPage;
+        this.page = page;
 
 
         pages.add(page);
-        for (int i=1;i<=3;i++){
-            if (page-i>0){
-                pages.add(0,page-i);
+        for (int i = 1; i <= 3; i++) {
+            if (page - i > 0) {
+                pages.add(0, page - i);
             }
-            if (page+i<=totalPage){
-                pages.add(page+i);
+            if (page + i <= totalPage) {
+                pages.add(page + i);
             }
         }
-        if (page==1){
-            this.showPrevious=false;
-        }else{
-            this.showPrevious=true;
+        if (page == 1) {
+            this.showPrevious = false;
+        } else {
+            this.showPrevious = true;
         }
-        if (page==this.totalPage){
-            this.showNext=false;
-        }else {
-            this.showNext=true;
+        if (page == this.totalPage) {
+            this.showNext = false;
+        } else {
+            this.showNext = true;
         }
-        if (this.pages.contains(1)){
-            this.showFirst=false;
-        }else{
-            this.showFirst=true;
+        if (this.pages.contains(1)) {
+            this.showFirst = false;
+        } else {
+            this.showFirst = true;
         }
-        if (this.pages.contains(this.totalPage)){
-            this.showLast=false;
-        }else{
-            this.showLast=true;
+        if (this.pages.contains(this.totalPage)) {
+            this.showLast = false;
+        } else {
+            this.showLast = true;
         }
 
     }
